@@ -49,11 +49,61 @@
         minHeight: '280px'
       }"
     >
-      Content
+      <a-list
+        item-layout="vertical"
+        size="large"
+        :grid="{ gutter: 20, column: 3 }"
+        :data-source="ebooks"
+      >
+        <template #renderItem="{ item }">
+          <a-list-item key="item.name">
+            <template #actions>
+              <span v-for="{ type, text } in actions" :key="type">
+                <component v-bind:is="type" style="margin-right: 8px" />
+                {{ text }}
+              </span>
+            </template>
+
+            <a-list-item-meta :description="item.description">
+              <template #title>
+                <a :href="item.href">{{ item.name }}</a>
+              </template>
+
+              <template #avatar>
+                <a-avatar :src="item.cover" />
+              </template>
+            </a-list-item-meta>
+          </a-list-item>
+        </template>
+      </a-list>
     </a-layout-content>
   </a-layout>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { onMounted, ref } from 'vue'
+import MyRequest from '@/service/index'
 
-<style></style>
+const ebooks = ref()
+
+const actions: Record<string, string>[] = [
+  { type: 'StarOutlined', text: '156' },
+  { type: 'LikeOutlined', text: '156' },
+  { type: 'MessageOutlined', text: '2' }
+]
+
+onMounted(async () => {
+  const res = await MyRequest.get('/ebook/list')
+  ebooks.value = res.content
+})
+</script>
+
+<style lang="scss" scoped>
+.ant-avatar {
+  width: 50px;
+  height: 50px;
+  line-height: 50px;
+  border-radius: 8%;
+  margin: 5px 0;
+}
+</style>
